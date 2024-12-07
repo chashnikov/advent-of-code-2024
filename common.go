@@ -25,6 +25,17 @@ func Abs(x int) int {
 	return x
 }
 
+func Sign(x int) int {
+	switch {
+	case x < 0:
+		return -1
+	case x > 0:
+		return 1
+	default:
+		return 0
+	}
+}
+
 func StrToInt(s string) int {
 	leftNum, err := strconv.Atoi(strings.TrimSpace(s))
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func main() {
+func day1() {
 	lines := ReadLines("day1-full.txt")
 	left := make([]int, 10)
 	right := make([]int, 10)
