@@ -7,15 +7,19 @@ import (
 )
 
 func ReadLines(name string) []string {
-	data, err := os.ReadFile("inputs/" + name)
-	if err != nil {
-		panic(err)
-	}
-	text := string(data)
+	text := ReadText(name)
 	if strings.Contains(text, "\r\n") {
 		return strings.Split(text, "\r\n")
 	}
 	return strings.Split(text, "\n")
+}
+
+func ReadText(name string) string {
+	data, err := os.ReadFile("inputs/" + name)
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
 }
 
 func StrToIntegers(line string) []int {
