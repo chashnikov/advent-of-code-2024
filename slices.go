@@ -53,3 +53,21 @@ func Any[S ~[]A, A any](s S, predicate func(A) bool) bool {
 	}
 	return false
 }
+
+func Sum(s []int) int {
+	result := 0
+	for _, a := range s {
+		result += a
+	}
+	return result
+}
+
+func Count[S ~[]A, A any](s S, predicate func(A) bool) int {
+	result := 0
+	for _, a := range s {
+		if predicate(a) {
+			result++
+		}
+	}
+	return result
+}
