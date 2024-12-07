@@ -28,14 +28,41 @@ func day5(fileName string) {
 	}
 	res := 0
 	for _, update := range updates {
-		if IsInRightOrder(update, orderings) {
-			if len(update)%2 == 0 {
-				panic(update)
+		if !IsInRightOrder(update, orderings) {
+			sorted := SortUpdateByOrder(update, orderings)
+			if len(sorted)%2 == 0 {
+				panic(sorted)
 			}
-			res += update[(len(update)-1)/2]
+			res += sorted[(len(sorted)-1)/2]
 		}
 	}
 	fmt.Println(res)
+}
+
+func SortUpdateByOrder(update []int, orderings map[[2]int]bool) []int {
+	sorted := make([]int, len(update))
+	for i := 0; i < len(update); i++ {
+		j := findMinIndexByOrder(update, orderings)
+		sorted[i] = update[j]
+		update[j] = -1
+	}
+	return sorted
+}
+
+func findMinIndexByOrder(update []int, orderings map[[2]int]bool) int {
+outer:
+	for i := 0; i < len(update); i++ {
+		if update[i] == -1 {
+			continue
+		}
+		for j := 0; j < len(update); j++ {
+			if j != i && update[j] != -1 && orderings[[2]int{update[j], update[i]}] {
+				continue outer
+			}
+		}
+		return i
+	}
+	panic(update)
 }
 
 func IsInRightOrder(update []int, orderings map[[2]int]bool) bool {
