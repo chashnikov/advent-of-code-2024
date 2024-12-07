@@ -22,8 +22,8 @@ func ReadText(name string) string {
 	return string(data)
 }
 
-func StrToIntegers(line string) []int {
-	return Map(strings.Split(line, " "), StrToInt)
+func SplitToInts(line string, separator string) []int {
+	return Map(strings.Split(line, separator), StrToInt)
 }
 
 func StrToInt(s string) int {

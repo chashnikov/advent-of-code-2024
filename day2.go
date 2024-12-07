@@ -8,7 +8,7 @@ func day2(fileName string) {
 	lines := ReadLines(fileName)
 	safe := 0
 	for _, line := range lines {
-		nums := StrToIntegers(line)
+		nums := SplitToInts(line, " ")
 		if IsSafeWithTolerance(nums) {
 			safe++
 		}
