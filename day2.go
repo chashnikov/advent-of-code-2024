@@ -2,33 +2,27 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 func day2(fileName string) {
 	lines := ReadLines(fileName)
 	safe := 0
-loop:
 	for _, line := range lines {
-		nums := strings.Split(line, " ")
-		var diff int
-		var prev int
-		var prevDiff int
-		for i, numString := range nums {
-			num := StrToInt(numString)
-			if i > 0 {
-				diff = num - prev
-				if diff == 0 || Abs(diff) > 3 {
-					continue loop
-				}
-				if i > 1 && Sign(diff) != Sign(prevDiff) {
-					continue loop
-				}
-				prevDiff = diff
-			}
-			prev = num
+		nums := StrToIntegers(line)
+		if IsSafe(nums) {
+			safe++
 		}
-		safe++
 	}
 	fmt.Println(safe)
+}
+
+func IsSafe(nums []int) bool {
+	diffs := Diffs(nums)
+	monotonic := ZipMap(diffs, diffs[1:], func(a int, b int) bool { return Sign(a) == Sign(b) })
+	return All(monotonic, func(e bool) bool { return e }) &&
+		All(diffs, func(d int) bool { return d != 0 && Abs(d) <= 3 })
+}
+
+func Diffs(nums []int) []int {
+	return ZipMap(nums, nums[1:], func(a int, b int) int { return a - b })
 }

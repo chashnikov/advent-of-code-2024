@@ -18,22 +18,8 @@ func ReadLines(name string) []string {
 	return strings.Split(text, "\n")
 }
 
-func Abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func Sign(x int) int {
-	switch {
-	case x < 0:
-		return -1
-	case x > 0:
-		return 1
-	default:
-		return 0
-	}
+func StrToIntegers(line string) []int {
+	return Map(strings.Split(line, " "), StrToInt)
 }
 
 func StrToInt(s string) int {
