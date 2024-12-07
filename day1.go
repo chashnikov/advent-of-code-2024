@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 )
 
 func main() {
-	text := ReadToString("day1.txt")
+	text := ReadToString("day1-full.txt")
 	lines := strings.Split(text, "\n")
 	left := make([]int, 10)
 	right := make([]int, 10)
@@ -19,11 +18,13 @@ func main() {
 		left = append(left, leftNum)
 		right = append(right, rightNum)
 	}
-	slices.Sort(left)
-	slices.Sort(right)
-	diff := 0
-	for i, l := range left {
-		diff += Abs(l - right[i])
+	counts := make(map[int]int)
+	for _, r := range right {
+		counts[r]++
 	}
-	fmt.Println(diff)
+	similarity := 0
+	for _, l := range left {
+		similarity += l * counts[l]
+	}
+	fmt.Println(similarity)
 }
