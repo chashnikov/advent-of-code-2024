@@ -9,11 +9,26 @@ func day2(fileName string) {
 	safe := 0
 	for _, line := range lines {
 		nums := StrToIntegers(line)
-		if IsSafe(nums) {
+		if IsSafeWithTolerance(nums) {
 			safe++
 		}
 	}
 	fmt.Println(safe)
+}
+
+func IsSafeWithTolerance(nums []int) bool {
+	if IsSafe(nums) {
+		return true
+	}
+	for bad := 0; bad < len(nums); bad++ {
+		reduced := FilterWithIndex(nums, func(i int, _ int) bool {
+			return i != bad
+		})
+		if IsSafe(reduced) {
+			return true
+		}
+	}
+	return false
 }
 
 func IsSafe(nums []int) bool {

@@ -18,6 +18,16 @@ func Filter[S ~[]A, A any](s S, predicate func(A) bool) []A {
 	return result
 }
 
+func FilterWithIndex[S ~[]A, A any](s S, predicate func(int, A) bool) []A {
+	result := make([]A, 0)
+	for i, a := range s {
+		if predicate(i, a) {
+			result = append(result, a)
+		}
+	}
+	return result
+}
+
 func ZipMap[S ~[]A, A any, T ~[]B, B any, C any](s S, t T, mapping func(A, B) C) []C {
 	result := make([]C, min(len(s), len(t)))
 	for i := 0; i < len(result); i++ {
