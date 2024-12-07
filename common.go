@@ -1,6 +1,10 @@
 package main
 
-import "os"
+import (
+	"os"
+	"strconv"
+	"strings"
+)
 
 func ReadToString(name string) string {
 	data, err := os.ReadFile("inputs/" + name)
@@ -15,4 +19,12 @@ func Abs(x int) int {
 		return -x
 	}
 	return x
+}
+
+func StrToInt(s string) int {
+	leftNum, err := strconv.Atoi(strings.TrimSpace(s))
+	if err != nil {
+		panic(err)
+	}
+	return leftNum
 }

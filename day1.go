@@ -3,26 +3,19 @@ package main
 import (
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 )
 
 func main() {
-	text := ReadToString("day1-full.txt")
+	text := ReadToString("day1.txt")
 	lines := strings.Split(text, "\n")
 	left := make([]int, 10)
 	right := make([]int, 10)
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		index := strings.Index(line, " ")
-		leftNum, err := strconv.Atoi(line[:index])
-		if err != nil {
-			panic(err)
-		}
-		rightNum, err := strconv.Atoi(strings.TrimSpace(line[index:]))
-		if err != nil {
-			panic(err)
-		}
+		leftNum := StrToInt(line[:index])
+		rightNum := StrToInt(line[index:])
 		left = append(left, leftNum)
 		right = append(right, rightNum)
 	}
