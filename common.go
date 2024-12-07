@@ -6,12 +6,16 @@ import (
 	"strings"
 )
 
-func ReadToString(name string) string {
+func ReadLines(name string) []string {
 	data, err := os.ReadFile("inputs/" + name)
 	if err != nil {
 		panic(err)
 	}
-	return string(data)
+	text := string(data)
+	if strings.Contains(text, "\r\n") {
+		return strings.Split(text, "\r\n")
+	}
+	return strings.Split(text, "\n")
 }
 
 func Abs(x int) int {

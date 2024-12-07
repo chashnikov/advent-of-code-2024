@@ -6,8 +6,7 @@ import (
 )
 
 func main() {
-	text := ReadToString("day1-full.txt")
-	lines := strings.Split(text, "\n")
+	lines := ReadLines("day1-full.txt")
 	left := make([]int, 10)
 	right := make([]int, 10)
 	for _, line := range lines {
