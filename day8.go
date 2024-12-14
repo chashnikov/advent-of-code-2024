@@ -20,13 +20,24 @@ func day8(fileName string) {
 		for i := 0; i < len(points); i++ {
 			for j := i + 1; j < len(points); j++ {
 				ij := points[j].Minus(points[i])
-				a1 := points[i].Minus(ij)
-				if a1.x >= 0 && a1.x < width && a1.y >= 0 && a1.y < height {
-					antinodes[a1] = true
+				ijMin := ij.Divide(Gcd(ij.x, ij.y))
+				p := points[i]
+				for {
+					if p.x >= 0 && p.x < width && p.y >= 0 && p.y < height {
+						antinodes[p] = true
+					} else {
+						break
+					}
+					p = p.Plus(ijMin)
 				}
-				a2 := points[j].Plus(ij)
-				if a2.x >= 0 && a2.x < width && a2.y >= 0 && a2.y < height {
-					antinodes[a2] = true
+				p = points[i].Minus(ijMin)
+				for {
+					if p.x >= 0 && p.x < width && p.y >= 0 && p.y < height {
+						antinodes[p] = true
+					} else {
+						break
+					}
+					p = p.Minus(ijMin)
 				}
 			}
 		}

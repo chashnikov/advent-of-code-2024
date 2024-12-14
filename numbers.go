@@ -17,3 +17,13 @@ func Sign(x int) int {
 		return 0
 	}
 }
+
+func Gcd(x, y int) int {
+	x = Abs(x)
+	y = Abs(y)
+	for x > 0 && y > 0 {
+		x, y = max(x, y), min(x, y)
+		x, y = y, x%y
+	}
+	return x + y
+}

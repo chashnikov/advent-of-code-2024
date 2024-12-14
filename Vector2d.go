@@ -25,3 +25,10 @@ func (a intVector) Multiply(b int) intVector {
 		y: a.y * b,
 	}
 }
+
+func (a intVector) Divide(b int) intVector {
+	return intVector{
+		x: a.x / b,
+		y: a.y / b,
+	}
+}
