@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -31,6 +32,12 @@ func CanBeComposedFrom(value int64, operands []int64) bool {
 		return true
 	}
 	if last > 0 && value%last == 0 && CanBeComposedFrom(value/last, rest) {
+		return true
+	}
+	valueString := strconv.FormatInt(value, 10)
+	lastString := strconv.FormatInt(last, 10)
+	if strings.HasSuffix(valueString, lastString) && len(valueString) > len(lastString) &&
+		CanBeComposedFrom(StrToInt64(strings.TrimSuffix(valueString, lastString)), rest) {
 		return true
 	}
 	return false
