@@ -62,6 +62,14 @@ func Sum(s []int) int {
 	return result
 }
 
+func Sum64(s []int64) int64 {
+	var result int64 = 0
+	for _, a := range s {
+		result += a
+	}
+	return result
+}
+
 func Count[S ~[]A, A any](s S, predicate func(A) bool) int {
 	result := 0
 	for _, a := range s {
