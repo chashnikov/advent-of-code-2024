@@ -1,5 +1,7 @@
 package main
 
+import "cmp"
+
 func Map[S ~[]A, A any, B any](s S, mapping func(A) B) []B {
 	result := make([]B, len(s))
 	for i, a := range s {
@@ -68,6 +70,19 @@ func Sum64(s []int64) int64 {
 		result += a
 	}
 	return result
+}
+
+func MinIndex[S ~[]E, E cmp.Ordered](x S) int {
+	if len(x) < 1 {
+		panic("slices.Min: empty list")
+	}
+	m := 0
+	for i := 1; i < len(x); i++ {
+		if x[i] < x[m] {
+			m = i
+		}
+	}
+	return m
 }
 
 func Count[S ~[]A, A any](s S, predicate func(A) bool) int {
