@@ -50,8 +50,8 @@ func simulateGuard(grid [][]byte, x int, y int, width int, height int) bool {
 			return true
 		}
 		grid[y][x] = 'X'
-		nx := x + directions[dirIndex].dx
-		ny := y + directions[dirIndex].dy
+		nx := x + directions4[dirIndex].x
+		ny := y + directions4[dirIndex].y
 		if nx < 0 || nx >= width || ny < 0 || ny >= height {
 			return false
 		}
@@ -62,16 +62,4 @@ func simulateGuard(grid [][]byte, x int, y int, width int, height int) bool {
 		x = nx
 		y = ny
 	}
-}
-
-var directions = []direction{
-	{0, -1},
-	{1, 0},
-	{0, 1},
-	{-1, 0},
-}
-
-type direction struct {
-	dx int
-	dy int
 }

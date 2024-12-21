@@ -32,3 +32,10 @@ func (a intVector) Divide(b int) intVector {
 		y: a.y / b,
 	}
 }
+
+var directions4 = [4]intVector{
+	{1, 0},
+	{0, 1},
+	{-1, 0},
+	{0, -1},
+}
