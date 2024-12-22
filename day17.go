@@ -12,6 +12,12 @@ func day17(fileName string) {
 	b := StrToInt(strings.TrimPrefix(lines[1], "Register B: "))
 	c := StrToInt(strings.TrimPrefix(lines[2], "Register C: "))
 	program := SplitToInts(strings.TrimPrefix(lines[4], "Program: "), ",")
+	a0, solved := computeARegister(0, len(program)-1, &program)
+	if !solved {
+		panic("Not solved")
+	}
+	a = int(a0)
+	fmt.Println("A: ", a)
 	ip := 0
 	output := make([]uint8, 0)
 	for ip < len(program)-1 {
@@ -55,4 +61,32 @@ func day17(fileName string) {
 	fmt.Println(strings.Join(Map(output, func(o uint8) string {
 		return strconv.Itoa(int(o))
 	}), ","))
+}
+
+func computeARegister(a uint64, outIndex int, program *[]int) (uint64, bool) {
+	if outIndex < 0 {
+		return a, true
+	}
+	out := uint64((*program)[outIndex])
+	aMin := uint64(0)
+	found := false
+	for b0 := uint64(0); b0 < 8; b0++ {
+		b := b0
+		b ^= 1
+		newA := b0 | a<<3
+		c := newA >> b
+		b ^= 5
+		b ^= c
+		if b&7 == out {
+			initialA, solved := computeARegister(newA, outIndex-1, program)
+			if solved && (!found || initialA < aMin) {
+				aMin = initialA
+				found = true
+			}
+		}
+	}
+	if !found {
+		return 0, false
+	}
+	return aMin, true
 }
