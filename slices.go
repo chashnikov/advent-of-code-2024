@@ -94,3 +94,14 @@ func Count[S ~[]A, A any](s S, predicate func(A) bool) int {
 	}
 	return result
 }
+
+func CreateInt2dSlice(size1 int, size2 int, value int) [][]int {
+	result := make([][]int, size1)
+	for i := 0; i < size1; i++ {
+		result[i] = make([]int, size2)
+		for j := 0; j < size2; j++ {
+			result[i][j] = value
+		}
+	}
+	return result
+}
