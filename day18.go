@@ -12,29 +12,48 @@ func day18(fileName string) {
 		return intVector{ints[0], ints[1]}
 	})
 	var size int
-	var pointsLen int
 	if fileName == "day18-full.txt" {
 		size = 71
-		pointsLen = 1024
 	} else {
 		size = 7
-		pointsLen = 12
 	}
 	steps := make([][]int, size)
 	grid := make([][]uint8, size)
 	for y := 0; y < size; y++ {
 		steps[y] = make([]int, size)
 		grid[y] = make([]uint8, size)
-		for x := 0; x < size; x++ {
-			steps[y][x] = math.MaxInt
-			grid[y][x] = '.'
+	}
+	from := 0
+	to := len(points)
+	for {
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				steps[y][x] = math.MaxInt
+				grid[y][x] = '.'
+			}
+		}
+		mid := (from + to) / 2
+		for i := 0; i < mid; i++ {
+			grid[points[i].y][points[i].x] = '#'
+		}
+		goInMemorySpace(intVector{0, 0}, 0, &grid, &steps)
+		path := steps[size-1][size-1]
+		if path == math.MaxInt {
+			fmt.Printf("Not reachable, mid=%d\n", mid)
+			if from == mid-1 {
+				fmt.Printf("%d,%d\n", points[mid-1].x, points[mid-1].y)
+				break
+			}
+			to = mid
+		} else {
+			fmt.Printf("Reachable, mid=%d\n", mid)
+			if to == mid+1 {
+				fmt.Printf("%d,%d\n", points[mid].x, points[mid].y)
+				break
+			}
+			from = mid
 		}
 	}
-	for i := 0; i < pointsLen; i++ {
-		grid[points[i].y][points[i].x] = '#'
-	}
-	goInMemorySpace(intVector{0, 0}, 0, &grid, &steps)
-	fmt.Println(steps[size-1][size-1])
 }
 
 func goInMemorySpace(p intVector, step int, grid *[][]uint8, steps *[][]int) {
