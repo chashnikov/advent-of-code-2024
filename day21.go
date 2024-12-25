@@ -8,13 +8,17 @@ import (
 
 func day21(fileName string) {
 	lines := ReadLines(fileName)
+	cache := make([]map[string]int, 30)
+	for device := 0; device < len(cache); device++ {
+		cache[device] = make(map[string]int)
+	}
 	fmt.Println(Sum(Map(lines, func(line string) int {
 		num := StrToInt(strings.TrimSuffix(line, "A"))
-		keySequence := ComputeKeySequence([]uint8(line), 0)
+		keySequenceLen := ComputeKeySequenceLen([]uint8(line), 0, cache)
 		fmt.Print(line)
 		fmt.Print(":")
-		fmt.Println(string(keySequence))
-		return num * len(keySequence)
+		fmt.Println(keySequenceLen)
+		return num * keySequenceLen
 	})))
 }
 
@@ -37,12 +41,16 @@ var keyCoordinates = map[uint8]intVector{
 }
 var forbiddenCoordinate = intVector{-2, 0}
 
-func ComputeKeySequence(line []uint8, device int) []uint8 {
-	if device == 3 {
-		return line
+func ComputeKeySequenceLen(line []uint8, device int, cache []map[string]int) int {
+	if device == 26 {
+		return len(line)
 	}
 	p := intVector{0, 0}
-	seq := make([]uint8, 0)
+	cached, ok := cache[device][string(line)]
+	if ok {
+		return cached
+	}
+	seqLen := 0
 	for _, ch := range line {
 		next, ok := keyCoordinates[ch]
 		if !ok {
@@ -62,20 +70,24 @@ func ComputeKeySequence(line []uint8, device int) []uint8 {
 		} else {
 			vertical = CreateSlice[uint8](-dy, '^')
 		}
-		keySeq := make([]uint8, 0)
+		keySeqLen := 0
 		if p.Plus(intVector{dx, 0}) != forbiddenCoordinate {
-			keySeq = ComputeKeySequence(slices.Concat(horizontal, vertical, []uint8{'A'}), device+1)
+			keySeqLen = ComputeKeySequenceLen(slices.Concat(horizontal, vertical, []uint8{'A'}), device+1, cache)
 		}
 		if p.Plus(intVector{0, dy}) != forbiddenCoordinate {
-			newKeySeq := ComputeKeySequence(slices.Concat(vertical, horizontal, []uint8{'A'}), device+1)
-			if len(keySeq) == 0 || len(keySeq) > len(newKeySeq) {
-				keySeq = newKeySeq
+			newKeySeq := ComputeKeySequenceLen(slices.Concat(vertical, horizontal, []uint8{'A'}), device+1, cache)
+			if keySeqLen == 0 || keySeqLen > newKeySeq {
+				keySeqLen = newKeySeq
 			}
 		}
-		seq = append(seq, keySeq...)
+		seqLen += keySeqLen
 		p = next
 	}
-	return seq
+	if p.x != 0 || p.y != 0 {
+		panic("key sequence doesn't finish at the origin")
+	}
+	cache[device][string(line)] = seqLen
+	return seqLen
 }
 
 func typeKeySequence(seq string) string {
