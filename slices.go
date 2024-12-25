@@ -113,3 +113,11 @@ func CreateBool2dSlice(size1 int, size2 int) [][]bool {
 	}
 	return result
 }
+
+func CreateSlice[A any](size int, value A) []A {
+	result := make([]A, size)
+	for i := 0; i < size; i++ {
+		result[i] = value
+	}
+	return result
+}
