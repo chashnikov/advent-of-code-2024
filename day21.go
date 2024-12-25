@@ -7,12 +7,6 @@ import (
 )
 
 func day21(fileName string) {
-	seq5 := "<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A"
-	fmt.Println(seq5)
-	seq5 = typeKeySequence(seq5)
-	fmt.Println(seq5)
-	seq5 = typeKeySequence(seq5)
-	fmt.Println(seq5)
 	lines := ReadLines(fileName)
 	fmt.Println(Sum(Map(lines, func(line string) int {
 		num := StrToInt(strings.TrimSuffix(line, "A"))
