@@ -1,5 +1,5 @@
 package main
 
 func main() {
-	day23("day23-full.txt")
+	day24("day24-full.txt")
 }
