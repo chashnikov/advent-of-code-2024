@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -23,25 +24,25 @@ func day23(fileName string) {
 			nodesList = append(nodesList, ends[1])
 		}
 	}
-	res := 0
-	for i := 0; i < len(nodesList); i++ {
-		n1 := nodesList[i]
-		for j := i + 1; j < len(nodesList); j++ {
-			n2 := nodesList[j]
-			if !edges[n1+"-"+n2] {
-				continue
-			}
-			for k := j + 1; k < len(nodesList); k++ {
-				n3 := nodesList[k]
-				if !strings.HasPrefix(n1, "t") && !strings.HasPrefix(n2, "t") && !strings.HasPrefix(n3, "t") {
-					continue
-				}
-				if !edges[n1+"-"+n3] || !edges[n2+"-"+n3] {
-					continue
-				}
-				res++
+	slices.Sort(nodesList)
+	maxClique := findMaximumClique(make([]string, 0), nodesList, edges)
+	fmt.Println(strings.Join(maxClique, ","))
+}
+
+func findMaximumClique(current []string, nodes []string, edges map[string]bool) []string {
+	maxClique := current
+nodeCycle:
+	for i, node := range nodes {
+		for _, cur := range current {
+			if !edges[cur+"-"+node] {
+				continue nodeCycle
 			}
 		}
+		next := slices.Concat(current, []string{node})
+		nextClique := findMaximumClique(next, nodes[i+1:], edges)
+		if len(nextClique) > len(maxClique) {
+			maxClique = nextClique
+		}
 	}
-	fmt.Println(res)
+	return maxClique
 }
