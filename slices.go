@@ -10,6 +10,14 @@ func Map[S ~[]A, A any, B any](s S, mapping func(A) B) []B {
 	return result
 }
 
+func Flatten[A any](s [][]A) []A {
+	result := make([]A, 0)
+	for _, a := range s {
+		result = append(result, a...)
+	}
+	return result
+}
+
 func Filter[S ~[]A, A any](s S, predicate func(A) bool) []A {
 	result := make([]A, 0)
 	for _, a := range s {
