@@ -9,7 +9,7 @@ import (
 func day22(fileName string) {
 	start := time.Now()
 	lines := ReadLines(fileName)
-	iterations := 100
+	iterations := 2000
 	prices := Map(lines, func(line string) []int {
 		return generatePricesList(StrToInt(line), iterations)
 	})
