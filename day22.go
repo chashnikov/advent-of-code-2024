@@ -14,13 +14,33 @@ func day22(fileName string) {
 		}
 		return diff
 	})
-	_ = differences
+	firstIndexes := Map(differences, func(diffs []int) [19][19]int {
+		firstIndex := [19][19]int{}
+		for i := 0; i < 19; i++ {
+			for j := 0; j < 19; j++ {
+				firstIndex[i][j] = len(diffs)
+			}
+		}
+		for i := 0; i < len(diffs)-1; i++ {
+			if firstIndex[diffs[i]+9][diffs[i+1]+9] == len(diffs) {
+				firstIndex[diffs[i]+9][diffs[i+1]+9] = i
+			}
+		}
+		return firstIndex
+	})
 	maxSum := 0
 	c := [4]int{-9, -9, -9, -9}
 	for {
 		sum := 0
 		for i := 0; i < len(prices); i++ {
-			sum += findFirstPrice(differences[i], prices[i], c)
+			if firstIndexes[i][c[1]+9][c[2]+9] == len(differences[i]) ||
+				firstIndexes[i][c[2]+9][c[3]+9] == len(differences[i]) {
+				continue
+			}
+			firstIndex := firstIndexes[i][c[0]+9][c[1]+9]
+			if firstIndex < len(differences[i]) {
+				sum += findFirstPrice(differences[i], prices[i], firstIndex, c)
+			}
 		}
 		maxSum = max(maxSum, sum)
 
@@ -40,11 +60,11 @@ func day22(fileName string) {
 	fmt.Println(maxSum)
 }
 
-func findFirstPrice(differences []int, prices []int, c [4]int) int {
-	for i := 3; i < len(differences); i++ {
-		if differences[i-3] == c[0] && differences[i-2] == c[1] &&
-			differences[i-1] == c[2] && differences[i] == c[3] {
-			return prices[i+1]
+func findFirstPrice(differences []int, prices []int, firstIndex int, c [4]int) int {
+	for i := firstIndex; i < len(differences)-3; i++ {
+		if differences[i] == c[0] && differences[i+1] == c[1] &&
+			differences[i+2] == c[2] && differences[i+3] == c[3] {
+			return prices[i+4]
 		}
 	}
 	return 0
