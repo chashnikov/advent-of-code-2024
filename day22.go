@@ -7,30 +7,44 @@ func day22(fileName string) {
 	prices := Map(lines, func(line string) []int {
 		return generatePricesList(StrToInt(line), 2000)
 	})
-	maxSum := 0
-	for c0 := -9; c0 <= 9; c0++ {
-		fmt.Printf("c0=%d\n", c0)
-		for c1 := -9; c1 <= 9; c1++ {
-			fmt.Printf("c1=%d\n", c1)
-			for c2 := -9; c2 <= 9; c2++ {
-				for c3 := -9; c3 <= 9; c3++ {
-					sum := 0
-					for i := 0; i < len(prices); i++ {
-						sum += findFirstPrice(prices[i], c0, c1, c2, c3)
-					}
-					maxSum = max(maxSum, sum)
-				}
-			}
+	differences := Map(prices, func(values []int) []int {
+		diff := make([]int, len(values)-1)
+		for i := 0; i < len(values)-1; i++ {
+			diff[i] = values[i+1] - values[i]
 		}
+		return diff
+	})
+	_ = differences
+	maxSum := 0
+	c := [4]int{-9, -9, -9, -9}
+	for {
+		sum := 0
+		for i := 0; i < len(prices); i++ {
+			sum += findFirstPrice(differences[i], prices[i], c)
+		}
+		maxSum = max(maxSum, sum)
+
+		i := 3
+		for i >= 0 && c[i] == 9 {
+			c[i] = -9
+			i--
+		}
+		if i < 0 {
+			break
+		}
+		if i == 1 {
+			fmt.Printf("c = {%d, %d, }\n", c[0], c[1])
+		}
+		c[i]++
 	}
 	fmt.Println(maxSum)
 }
 
-func findFirstPrice(prices []int, c0 int, c1 int, c2 int, c3 int) int {
-	for i := 4; i < len(prices); i++ {
-		if prices[i-3]-prices[i-4] == c0 && prices[i-2]-prices[i-3] == c1 &&
-			prices[i-1]-prices[i-2] == c2 && prices[i]-prices[i-1] == c3 {
-			return prices[i]
+func findFirstPrice(differences []int, prices []int, c [4]int) int {
+	for i := 3; i < len(differences); i++ {
+		if differences[i-3] == c[0] && differences[i-2] == c[1] &&
+			differences[i-1] == c[2] && differences[i] == c[3] {
+			return prices[i+1]
 		}
 	}
 	return 0
