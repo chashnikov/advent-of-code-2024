@@ -57,7 +57,7 @@ func day24(fileName string) {
 	_ = orderedGates
 	_ = memoryOffsets
 	//compileProgram(orderedGates, memoryOffsets)
-	//proposeWrongCandidateSets(gates)
+	//proposeWrongCandidateSets(orderedGates, memoryOffsets)
 	findCorrections(memoryOffsets, orderedGates)
 }
 
@@ -128,8 +128,41 @@ func compileProgram(gates []gateData, offsets map[string]int) {
 	fmt.Println("}")
 }
 
-func proposeWrongCandidateSets(gates []gateData) {
+func proposeWrongCandidateSets(orderedGates []gateData, memoryOffsets map[string]int) {
+	outputToGate := make(map[string]gateData)
+	for _, gate := range orderedGates {
+		outputToGate[gate.output] = gate
+	}
+	outputs := make([]int, len(memoryOffsets))
+	for i := 0; i < len(memoryOffsets); i++ {
+		outputs[i] = i
+	}
+
 	wrongSetCandidates := make(map[string]bool)
+	/*	for maxBit := 14; maxBit < 15; maxBit++ {
+			fmt.Printf("maxBit=%d\n", maxBit)
+			for x := 1 << maxBit; x < 1<<(maxBit+1); x++ {
+				//fmt.Printf("x=%d\n", x)
+				for y := 0; y <= x; y++ {
+					if compiledProgram(x, y, outputs) != x+y {
+						changedNames := make([]string, 0)
+						for b := 0; b <= maxBit; b++ {
+							if 1<<b&x != 0 {
+								changedNames = append(changedNames, fmt.Sprintf("x%02d", b))
+							}
+							if 1<<b&y != 0 {
+								changedNames = append(changedNames, fmt.Sprintf("y%02d", b))
+							}
+							v := createInitialValues(changedNames)
+							if !checkAndCollectWrongSetCandidates(orderedGates, outputToGate, v, changedNames, wrongSetCandidates) {
+								//fmt.Printf("{%d, %d},\n", xi, yi)
+							}
+						}
+					}
+				}
+			}
+		}
+	*/
 	for yi := 0; yi < totalNumOfBits; yi++ {
 		for xi := 0; xi < totalNumOfBits; xi++ {
 			changedNames := []string{
@@ -137,8 +170,7 @@ func proposeWrongCandidateSets(gates []gateData) {
 				fmt.Sprintf("y%02d", yi),
 			}
 			v := createInitialValues(changedNames)
-			if !checkAndCollectWrongSetCandidates(gates, v, changedNames, wrongSetCandidates) {
-				fmt.Printf("{%d, %d},\n", xi, yi)
+			if !checkAndCollectWrongSetCandidates(orderedGates, outputToGate, v, changedNames, wrongSetCandidates) {
 			}
 		}
 	}
@@ -157,89 +189,40 @@ func createInitialValues(changedNames []string) map[string]int {
 }
 
 func findCorrections(memoryOffsets map[string]int, gates []gateData) {
-	candidateInSet := make([]int, len(wrongCandidateSets))
 	allCandidates := Map(gates, func(gate gateData) string { return gate.output })
-	for {
-		initialCandidates := make([]string, len(wrongCandidateSets))
-		for i, index := range candidateInSet {
-			initialCandidates[i] = wrongCandidateSets[i][index]
+	initialCandidates := []string{
+		"ncd", "nfj",
+		"z15", "qnw",
+		"z20", "cqr",
+	}
+	for i5 := 0; i5 < len(allCandidates); i5++ {
+		c5 := allCandidates[i5]
+		if slices.Contains(initialCandidates, c5) {
+			continue
 		}
-		for i5 := 0; i5 < len(allCandidates); i5++ {
-			c5 := allCandidates[i5]
-			if slices.Contains(initialCandidates, c5) {
+		for i6 := i5 + 1; i6 < len(allCandidates); i6++ {
+			c6 := allCandidates[i6]
+			if slices.Contains(initialCandidates, c6) {
 				continue
 			}
-			for i6 := i5 + 1; i6 < len(allCandidates); i6++ {
-				c6 := allCandidates[i6]
-				if slices.Contains(initialCandidates, c6) {
-					continue
-				}
-				candidates := slices.Concat(initialCandidates, []string{c5, c6})
-				findCorrectionsForCandidates(memoryOffsets, candidates)
-			}
-		}
-		index := len(candidateInSet) - 1
-		for index >= 0 {
-			if candidateInSet[index] < len(wrongCandidateSets[index])-1 {
-				candidateInSet[index]++
-				break
-			} else {
-				index--
-			}
-		}
-		if index < 0 {
-			break
+			candidates := slices.Concat(initialCandidates, []string{c5, c6})
+			findCorrectionsForCandidates(memoryOffsets, candidates)
 		}
 	}
 }
 
 func findCorrectionsForCandidates(memoryOffsets map[string]int, candidates []string) {
-	bestPermutation := ""
-	maxErrorIndex := 0
-	c0a := 0
-	for c0b := 1; c0b <= 5; c0b++ {
-		var c1a int
-		if c0b == 1 {
-			c1a = 2
-		} else {
-			c1a = 1
-		}
-		for c1b := 1; c1b <= 5; c1b++ {
-			if c1b == c0b || c1b == c1a {
-				continue
-			}
-			c2a := c1a + 1
-			for c2a == c0b || c2a == c1b {
-				c2a++
-			}
-			c2b := c2a + 1
-			for c2b == c0b || c2b == c1b {
-				c2b++
-			}
-			corrections := []string{
-				candidates[c0a], candidates[c0b],
-				candidates[c1a], candidates[c1b],
-				candidates[c2a], candidates[c2b],
-				"z20", "cqr",
-			}
-			errorIndex := checkCorrectionsAndReturnInvalidIndex(memoryOffsets, corrections)
-			if errorIndex == -1 {
-				fmt.Println("Found!!!!")
-				fmt.Printf("Corrections: %s<->%s, %s<->%s, %s<->%s, z20<->cqr\n",
-					candidates[c0a], candidates[c0b], candidates[c1a], candidates[c1b],
-					candidates[c2a], candidates[c2b])
-			}
-			if errorIndex > maxErrorIndex {
-				bestPermutation = fmt.Sprintf("Corrections: %s<->%s, %s<->%s, %s<->%s, z20<->cqr",
-					candidates[c0a], candidates[c0b], candidates[c1a], candidates[c1b],
-					candidates[c2a], candidates[c2b])
-				maxErrorIndex = errorIndex
-			}
-		}
-	}
-	if maxErrorIndex >= 27 {
-		//fmt.Printf("Checking corrections for candidates: %v...", candidates)
-		fmt.Printf("For %s max error index = %d\n", bestPermutation, maxErrorIndex)
+	corrections := candidates
+	errorIndex := checkCorrectionsAndReturnInvalidIndex(memoryOffsets, corrections)
+	if errorIndex == -1 {
+		fmt.Println("Found!!!!")
+		fmt.Printf("Corrections: %s<->%s, %s<->%s, %s<->%s, %s<->%s\n",
+			corrections[0], corrections[1], corrections[2], corrections[3], corrections[4], corrections[5],
+			corrections[6], corrections[7],
+		)
+		sorted := slices.Clone(corrections)
+		slices.Sort(sorted)
+		fmt.Printf("Answer: %s", strings.Join(sorted, ","))
 	}
 }
 
@@ -279,58 +262,126 @@ func checkCorrectionsForChangedValues(xi int, yi int, outputs []int) bool {
 	return x+y == z
 }
 
-func checkAndCollectWrongSetCandidates(gates []gateData, values map[string]int, changedNames []string, newWrongCandidatesSet map[string]bool) bool {
+func checkAndCollectWrongSetCandidates(orderedGates []gateData, outputToGate map[string]gateData, values map[string]int, changedNames []string, newWrongCandidatesSet map[string]bool) bool {
 	corrections := make(map[string]string)
 	corrections["z20"] = "cqr"
 	corrections["cqr"] = "z20"
-	runComputation(gates, values, corrections)
+	corrections["qnw"] = "z15"
+	corrections["z15"] = "qnw"
+	corrections["ncd"] = "nfj"
+	corrections["nfj"] = "ncd"
+	runComputation(orderedGates, values, corrections)
 	x := bitsToValue("x", values)
 	y := bitsToValue("y", values)
 	z := bitsToValue("z", values)
 	if x+y == z {
 		return true
 	}
+	changedNamesSet := make(map[string]bool)
+	for _, name := range changedNames {
+		changedNamesSet[name] = true
+	}
 	expectedBits := valueToBits("z", x+y, totalNumOfBits+1)
-	incorrectBits := make(map[string]bool)
 	for name, value := range expectedBits {
 		if value != values[name] {
-			incorrectBits[name] = true
-		}
-	}
-	brokenCandidates := make(map[string]bool)
-	for _, changedName := range changedNames {
-		computeAffectedNodes(changedName, incorrectBits, gates, brokenCandidates)
-	}
-	if Any(wrongCandidateSets, func(set []string) bool {
-		return Any(set, func(s string) bool {
-			return brokenCandidates[s]
-		})
-	}) {
-		return false
-	}
-	candidatesSlice := Keys(brokenCandidates)
-	slices.Sort(candidatesSlice)
-	candidatesString := strings.Join(candidatesSlice, ",")
-	if !newWrongCandidatesSet[candidatesString] {
-		newWrongCandidatesSet[candidatesString] = true
-		//fmt.Printf("Incorrect computation for %s: %s\n", strings.Join(changedNames, ","), candidatesString)
-	}
-	return false
-}
-
-func computeAffectedNodes(name string, incorrectBits map[string]bool, gates []gateData, candidates map[string]bool) bool {
-	if incorrectBits[name] {
-		return true
-	}
-	for _, gate := range gates {
-		if gate.input1 == name || gate.input2 == name {
-			if computeAffectedNodes(gate.output, incorrectBits, gates, candidates) {
-				candidates[gate.output] = true
-				return true
+			mayCause, brokenCandidates := mayCauseIncorrectValue(name, values[name], values, outputToGate)
+			if mayCause {
+				candidatesSlice := Keys(brokenCandidates)
+				slices.Sort(candidatesSlice)
+				candidatesString := strings.Join(candidatesSlice, ",")
+				if !newWrongCandidatesSet[candidatesString] {
+					newWrongCandidatesSet[candidatesString] = true
+					fmt.Printf("Incorrect computation for %s: %s\n", strings.Join(changedNames, ","), candidatesString)
+				}
 			}
 		}
 	}
 	return false
+}
+
+func mayCauseIncorrectValue(name string, incorrectValue int, values map[string]int, outputToGate map[string]gateData) (bool, map[string]bool) {
+	if strings.HasPrefix(name, "x") || strings.HasPrefix(name, "y") {
+		return values[name] == incorrectValue, make(map[string]bool)
+	}
+	gate, ok := outputToGate[name]
+	if !ok {
+		panic("Cannot find gate for output " + name)
+	}
+	switch gate.operationSign {
+	case "&":
+		if incorrectValue == 1 {
+			i1, s1 := mayCauseIncorrectValue(gate.input1, 1, values, outputToGate)
+			i2, s2 := mayCauseIncorrectValue(gate.input2, 1, values, outputToGate)
+			if i1 && i2 {
+				return true, AddElement(Union(s1, s2), gate.output)
+			} else {
+				return false, nil
+			}
+		} else {
+			i1, s1 := mayCauseIncorrectValue(gate.input1, 0, values, outputToGate)
+			i2, s2 := mayCauseIncorrectValue(gate.input2, 0, values, outputToGate)
+			if i1 && i2 {
+				return true, AddElement(Union(s1, s2), gate.output)
+			} else if i1 {
+				return true, AddElement(s1, gate.output)
+			} else if i2 {
+				return true, AddElement(s2, gate.output)
+			} else {
+				return false, nil
+			}
+		}
+	case "|":
+		if incorrectValue == 0 {
+			i1, s1 := mayCauseIncorrectValue(gate.input1, 0, values, outputToGate)
+			i2, s2 := mayCauseIncorrectValue(gate.input2, 0, values, outputToGate)
+			if i1 && i2 {
+				return true, AddElement(Union(s1, s2), gate.output)
+			} else {
+				return false, nil
+			}
+		} else {
+			i1, s1 := mayCauseIncorrectValue(gate.input1, 1, values, outputToGate)
+			i2, s2 := mayCauseIncorrectValue(gate.input2, 1, values, outputToGate)
+			if i1 && i2 {
+				return true, AddElement(Union(s1, s2), gate.output)
+			} else if i1 {
+				return true, AddElement(s1, gate.output)
+			} else if i2 {
+				return true, AddElement(s2, gate.output)
+			} else {
+				return false, nil
+			}
+		}
+	case "^":
+		i10, s10 := mayCauseIncorrectValue(gate.input1, 0, values, outputToGate)
+		i20, s20 := mayCauseIncorrectValue(gate.input2, 0, values, outputToGate)
+		i11, s11 := mayCauseIncorrectValue(gate.input1, 1, values, outputToGate)
+		i21, s21 := mayCauseIncorrectValue(gate.input2, 1, values, outputToGate)
+		if incorrectValue == 1 {
+			if i10 && i21 && i11 && i20 {
+				return true, AddElement(Union(Union(s10, s21), Union(s11, s20)), gate.output)
+			} else if i10 && i21 {
+				return true, AddElement(Union(s10, s21), gate.output)
+			} else if i11 && i20 {
+				return true, AddElement(Union(s11, s20), gate.output)
+			} else {
+				return false, nil
+			}
+		} else {
+			if i10 && i20 && i11 && i21 {
+				return true, AddElement(Union(Union(s10, s20), Union(s11, s21)), gate.output)
+			} else if i10 && i20 {
+				return true, AddElement(Union(s10, s20), gate.output)
+			} else if i11 && i21 {
+				return true, AddElement(Union(s11, s21), gate.output)
+			} else {
+				return false, nil
+			}
+		}
+	default:
+		panic("Unknown operation sign " + gate.operationSign)
+	}
+	return false, nil
 }
 
 func runComputation(gates []gateData, values map[string]int, outputCorrections map[string]string) {
@@ -370,11 +421,12 @@ func valueToBits(name string, value int, bits int) map[string]int {
 	return result
 }
 
+// , , z20<->cqr,
 var wrongCandidateSets = [][]string{
-	{"ncd", "ndd", "z28"},
-	{"qnw", "rjm", "z16"},
-	{"bvv", "dnt", "vkg", "z38"},
-	{"fkg", "hbp", "vct", "wrb", "z21"},
+	{"dnt", "z37"}, //vkg<->z37
+	{"ctg", "gnc", "kdf", "qnw", "rjm", "z16"},        //z15<->qnw
+	{"cqr", "hbp", "msn", "rjq", "vct", "wrb", "z21"}, //ncd<->nfj
+	{"brm", "kmn", "mdv", "ncd", "ndd", "qrs", "z29"},
 }
 
 var totalNumOfBits = 45
