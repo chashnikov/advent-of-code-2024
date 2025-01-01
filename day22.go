@@ -1,11 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func day22(fileName string) {
+	start := time.Now()
 	lines := ReadLines(fileName)
+	iterations := 100
 	prices := Map(lines, func(line string) []int {
-		return generatePricesList(StrToInt(line), 2000)
+		return generatePricesList(StrToInt(line), iterations)
 	})
 	differences := Map(prices, func(values []int) []int {
 		diff := make([]int, len(values)-1)
@@ -57,7 +62,8 @@ func day22(fileName string) {
 		}
 		c[i]++
 	}
-	fmt.Println(maxSum)
+	fmt.Printf("Sum for %d iterations: %d\n", iterations, maxSum)
+	fmt.Printf("Elapsed time: %s\n", time.Since(start))
 }
 
 func findFirstPrice(differences []int, prices []int, firstIndex int, c [4]int) int {
