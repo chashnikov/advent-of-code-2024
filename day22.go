@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -33,21 +34,17 @@ func day22(fileName string) {
 		}
 		return firstIndex
 	})
-	maxSum := 0
 	c := [4]int{-9, -9, -9, -9}
+	inputs := make(chan [4]int, runtime.NumCPU())
+	sums := make(chan int)
+	inputsNum := 0
 	for {
-		sum := 0
-		for i := 0; i < len(prices); i++ {
-			if firstIndexes[i][c[1]+9][c[2]+9] == len(differences[i]) ||
-				firstIndexes[i][c[2]+9][c[3]+9] == len(differences[i]) {
-				continue
-			}
-			firstIndex := firstIndexes[i][c[0]+9][c[1]+9]
-			if firstIndex < len(differences[i]) {
-				sum += findFirstPrice(differences[i], prices[i], firstIndex, c)
-			}
-		}
-		maxSum = max(maxSum, sum)
+		inputsNum++
+		inputs <- c
+		go func() {
+			changes := <-inputs
+			sums <- computeSumPrices(prices, firstIndexes, changes, differences)
+		}()
 
 		i := 3
 		for i >= 0 && c[i] == 9 {
@@ -62,8 +59,28 @@ func day22(fileName string) {
 		}
 		c[i]++
 	}
+	maxSum := 0
+	for i := 0; i < inputsNum; i++ {
+		sum := <-sums
+		maxSum = max(maxSum, sum)
+	}
 	fmt.Printf("Sum for %d iterations: %d\n", iterations, maxSum)
 	fmt.Printf("Elapsed time: %s\n", time.Since(start))
+}
+
+func computeSumPrices(prices [][]int, firstIndexes [][19][19]int, c [4]int, differences [][]int) int {
+	sum := 0
+	for i := 0; i < len(prices); i++ {
+		if firstIndexes[i][c[1]+9][c[2]+9] == len(differences[i]) ||
+			firstIndexes[i][c[2]+9][c[3]+9] == len(differences[i]) {
+			continue
+		}
+		firstIndex := firstIndexes[i][c[0]+9][c[1]+9]
+		if firstIndex < len(differences[i]) {
+			sum += findFirstPrice(differences[i], prices[i], firstIndex, c)
+		}
+	}
+	return sum
 }
 
 func findFirstPrice(differences []int, prices []int, firstIndex int, c [4]int) int {
